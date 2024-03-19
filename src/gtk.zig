@@ -1,13 +1,10 @@
 const std = @import("std");
-
+const pa = @import("pa.zig");
 const c = @cImport({
     @cInclude("gtk/gtk.h");
 });
 
 const print = std.debug.print;
-const RndGen = std.rand.DefaultPrng;
-
-const pa = @import("pa.zig");
 
 var TheGTK = GTK{};
 
@@ -29,7 +26,6 @@ pub const GTK = struct {
 
     bEvKillThread: bool = false,
     bThreadRunning: bool = false,
-    transp: f64 = 0.0,
     theThread: [*c]c.GThread = null,
 
     thePA: *pa.PA = undefined,
@@ -133,11 +129,9 @@ pub const GTK = struct {
         c.g_print("bThreadRunning: %d\n", self.bThreadRunning);
 
         while (!self.bEvKillThread) {
-            self.transp += 0.01;
             c.g_usleep(50_000); // 50 imagenes/s
-            if (self.transp > 1.0) {
-                self.transp = 0.0;
-            }
+            _ = self.thePA.GetInputdata(&self.DrawingDataRaw, &self.DrawingDataMod);
+
             c.gtk_widget_queue_draw(@ptrCast(self.drawFFT));
             c.gtk_widget_queue_draw(@ptrCast(self.drawFall));
         }
@@ -215,17 +209,9 @@ pub const GTK = struct {
         var i: f64 = 0;
         const DIVISIONES: f64 = 128;
         const INC = 1 / DIVISIONES;
-        const SEP_MIN: f64 = INC / 4;
-        const ANCHO_MAX = INC - SEP_MIN;
-        var ANCHO: f64 = 0.1;
-        if (ANCHO_MAX < 0.1) {
-            ANCHO = ANCHO_MAX;
-        }
-
-        //if (!self.thePA.GetInputdata(&self.DrawingDataRaw)) return c.FALSE;
-        var pos: usize = 0;
 
         c.cairo_move_to(cr, 0, 0.5);
+        var pos: usize = 0;
         while (i < 1) : ({
             pos += 8;
             i += INC;
@@ -252,23 +238,20 @@ pub const GTK = struct {
         c.cairo_set_source(cr, self.pat);
 
         var i: f64 = 0;
-        const DIVISIONES: f64 = 128;
+        const DIVISIONES: f64 = 512;
         const INC = 1 / DIVISIONES;
         const SEP_MIN: f64 = INC / 4;
         const ANCHO_MAX = INC - SEP_MIN;
-        var ANCHO: f64 = 0.1;
-        if (ANCHO_MAX < 0.1) {
-            ANCHO = ANCHO_MAX;
-        }
+        const ANCHO: f64 = if (ANCHO_MAX > 0.1) 0.1 else ANCHO_MAX;
 
-        if (!self.thePA.GetInputdata(&self.DrawingDataRaw, &self.DrawingDataMod)) return c.FALSE;
         var pos: usize = 0;
-
+        const POS_INC: usize = @intFromFloat(1024 / 2 / DIVISIONES);
         while (i < 1) : ({
-            pos += 8;
-            i += INC * 2;
+            //pos += 8;
+            //i += INC * 2;
+            pos += POS_INC;
+            i += INC;
         }) {
-            //c.cairo_rectangle(cr, i, 0.5, ANCHO, -self.DrawingDataRaw[pos]);
             c.cairo_rectangle(cr, i, 1.0, ANCHO, -self.DrawingDataMod[pos]);
         }
         c.cairo_fill(cr);
