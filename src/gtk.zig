@@ -124,7 +124,7 @@ pub const GTK = struct {
     }
 
     fn UpdatingThread(self: *GTK) void {
-        c.g_usleep(50_100);
+        c.g_usleep(15_100);
         self.bThreadRunning = true;
         c.g_print("bThreadRunning: %d\n", self.bThreadRunning);
 
