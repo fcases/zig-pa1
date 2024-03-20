@@ -2,10 +2,7 @@
     "zig.zigPath": "/home/chuco/MyProgs/ZIG/bin/zig",
     "zig.path": "/home/chuco/MyProgs/ZIG/bin/zig/zig",
     "zig.zls.path": "/home/chuco/MyProgs/ZIG/bin/zls",
-<<<<<<< HEAD
     "zig.zls.zigLibPath": "/home/chuco/MyProgs/ZIG/bin/zig/lib",
     "github-enterprise.uri": "https://github.com/fcases"
-=======
     "zig.zls.zigLibPath": "/home/chuco/MyProgs/ZIG/bin/zig/lib"
->>>>>>> fb4879a (init)
 }

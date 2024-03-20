@@ -14,10 +14,11 @@ const SyncObj = struct {
     theEvent: std.Thread.ResetEvent = std.Thread.ResetEvent{},
 
     fn BlockProd(self: *SyncObj) bool {
-        if (!self.theEvent.isSet())
-            return self.theMutex.tryLock()
-        else
-            return false;
+        if (!self.theEvent.isSet()) {
+            const B = self.theMutex.tryLock();
+            if (!B) stdout.print("{s}", .{"*"}) catch {};
+            return B;
+        } else return false;
     }
 
     fn UnblockProd(self: *SyncObj) void {
@@ -37,11 +38,7 @@ const SyncObj = struct {
     }
 
     fn Reset(self: *SyncObj) void {
-        if (self.theEvent.isSet())
-            self.theEvent.reset();
-
-        if (self.theMutex.tryLock())
-            self.theMutex.unlock();
+        self.theEvent.reset();
     }
 };
 
@@ -147,7 +144,10 @@ pub const PA = struct {
         if (self.theSync.BlockProd()) {
             @memcpy(&self.RawAudio, &ptrIn.*);
             @memcpy(&self.ModAudio, &out);
+            //            stdout.print("{s}", .{":"}) catch {};
             self.theSync.UnblockProd();
+        } else {
+            stdout.print("{s}", .{"."}) catch {};
         }
 
         return 0;
@@ -158,10 +158,11 @@ pub const PA = struct {
             @memcpy(dataRaw, &self.RawAudio);
             @memcpy(dataMod, &self.ModAudio);
             self.theSync.UnblockCons();
+            //            stdout.print("{s}", .{"!"}) catch {};
             return true;
+        } else {
+            stdout.print("{s}", .{"¡"}) catch {};
+            return false;
         }
-
-        self.theSync.Reset();
-        return false;
     }
 };
