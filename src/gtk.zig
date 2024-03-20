@@ -130,10 +130,11 @@ pub const GTK = struct {
         c.g_print("bThreadRunning: %d\n", self.bThreadRunning);
 
         while (!self.bEvKillThread) {
-            c.g_usleep(10_000);
-            _ = self.thePA.GetInputdata(&self.DrawingDataRaw, &self.DrawingDataMod);
-            c.gtk_widget_queue_draw(@ptrCast(self.drawFFT));
-            c.gtk_widget_queue_draw(@ptrCast(self.drawFall));
+            c.g_usleep(50_000);
+            if (self.thePA.GetInputdata(&self.DrawingDataRaw, &self.DrawingDataMod)) {
+                c.gtk_widget_queue_draw(@ptrCast(self.drawFFT));
+                c.gtk_widget_queue_draw(@ptrCast(self.drawFall));
+            }
         }
 
         c.g_print("bEvKillThread: %d\n", self.bEvKillThread);
@@ -238,14 +239,14 @@ pub const GTK = struct {
         c.cairo_set_source(cr, self.pat);
 
         var i: f64 = 0;
-        const DIVISIONES: f64 = 128; // si quiero visualizar hasta 22Khz => max 512 divs, si quiero hasta 11KHz => max 256 divs, y asi
+        const DIVISIONES: f64 = 64; // si quiero visualizar hasta 22Khz => max 512 divs, si quiero hasta 11KHz => max 256 divs, y asi
         const INC = 1 / DIVISIONES;
         const SEP_MIN: f64 = INC / 4;
         const ANCHO_MAX = INC - SEP_MIN;
         const ANCHO: f64 = if (ANCHO_MAX > 0.1) 0.1 else ANCHO_MAX;
 
         var pos: usize = 0;
-        const POS_INC: usize = @intFromFloat(1024 / 4 / DIVISIONES); // 22 Khz => 1024/2,    si 11KHz => 1024/4
+        const POS_INC: usize = @intFromFloat(1024 / 16 / DIVISIONES); // 22 Khz => 1024/2,    si 11KHz => 1024/4
         while (i < 1) : ({
             //pos += 8;
             //i += INC * 2;

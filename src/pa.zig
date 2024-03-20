@@ -14,26 +14,27 @@ const SyncObj = struct {
     theEvent: std.Thread.ResetEvent = std.Thread.ResetEvent{},
 
     fn BlockProd(self: *SyncObj) bool {
-        if (!self.theEvent.isSet())
-            return self.theMutex.tryLock()
-        else
-            return false;
+        //        if (!self.theEvent.isSet())
+        return self.theMutex.tryLock();
+        //        else
+        //            return false;
     }
 
     fn UnblockProd(self: *SyncObj) void {
         self.theMutex.unlock();
-        self.theEvent.set();
+        //       self.theEvent.set();
     }
 
     fn BlockCons(self: *SyncObj) bool {
-        self.theEvent.timedWait(15_000_000) catch return false; // nanoseconds
-        self.theMutex.lock();
-        return true;
+        //        self.theEvent.timedWait(30_000_000) catch return false; // nanoseconds
+        //        self.theMutex.lock();
+        //        return true;
+        return self.theMutex.tryLock();
     }
 
     fn UnblockCons(self: *SyncObj) void {
         self.theMutex.unlock();
-        self.theEvent.reset();
+        //        self.theEvent.reset();
     }
 
     fn Reset(self: *SyncObj) void {
@@ -46,7 +47,8 @@ const SyncObj = struct {
 };
 
 const SAMPLES: c_ulong = 1024;
-const FRAMERATE = 44_100.0;
+//const FRAMERATE = 44_100.0;
+const FRAMERATE = 32_000;
 var ThePA = PA{};
 
 pub const PA = struct {
@@ -139,7 +141,9 @@ pub const PA = struct {
         _ = fft.fft(f32, @constCast(&in), &zeros) catch 0;
         const real: @Vector(SAMPLES, f32) = in;
         const imag: @Vector(SAMPLES, f32) = zeros;
-        const mod = @sqrt(real * real + imag * imag);
+
+        const K2: @Vector(SAMPLES, f32) = @splat(0.05);
+        const mod = @sqrt(real * real + imag * imag) * K2;
         out = mod;
         //const arg=imag/real;
 
