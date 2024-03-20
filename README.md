@@ -7,5 +7,5 @@ Just choose an input device in first dropmenu, output in second dropmenu. If bot
 ![Alt text](app.png?raw=true "window app")
 
 
-The first graph shows the FFT of the signal, drwan in the second.
+The first graph shows the FFT of the signal, drawn in the second.
 
