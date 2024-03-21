@@ -47,8 +47,8 @@ const SyncObj = struct {
 };
 
 const SAMPLES: c_ulong = 1024;
-//const FRAMERATE = 44_100.0;
-const FRAMERATE = 32_000;
+const FRAMERATE = 44_100.0;
+//const FRAMERATE = 32_000;
 var ThePA = PA{};
 
 pub const PA = struct {
