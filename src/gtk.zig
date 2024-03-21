@@ -203,22 +203,36 @@ pub const GTK = struct {
         if (!self.bThreadRunning) return c.FALSE;
 
         c.cairo_scale(cr, width, height);
-
-        c.cairo_set_source_rgba(cr, 0.8, 0.8, 0, 0.8);
+        c.cairo_set_source_rgba(cr, 0.4, 0.8, 0, 0.8);
         c.cairo_set_line_width(cr, 0.005);
 
         var i: f64 = 0;
-        const DIVISIONES: f64 = 128;
+        const DIVISIONES: f64 = 1024;
         const INC = 1 / DIVISIONES;
 
-        c.cairo_move_to(cr, 0, 0.5);
-        var pos: usize = 0;
+        const K: f64 = 1.8;
+        const R: f64 = 0.15;
+        var m: f64 = 0.0;
+        var fi: f64 = 0.0;
+        var x: f64 = R;
+        var y: f64 = 0;
+
+        c.cairo_translate(cr, 0.5, 0.5);
+        c.cairo_move_to(cr, K * (x + self.DrawingDataRaw[0]), 0.0);
+
+        var pos: usize = 0.0;
+        i = 0;
         while (i < 1) : ({
-            pos += 8;
+            pos += 1;
             i += INC;
+            fi = i * 2 * std.math.pi;
         }) {
-            c.cairo_line_to(cr, i, 0.5 - self.DrawingDataRaw[pos]);
+            m = R + self.DrawingDataRaw[pos];
+            x = K * m * std.math.cos(fi);
+            y = -K * m * std.math.sin(fi);
+            c.cairo_line_to(cr, x, y);
         }
+        c.cairo_line_to(cr, K * (0.15 + self.DrawingDataRaw[0]), 0.0);
         c.cairo_stroke(cr);
 
         return c.FALSE;
