@@ -32,7 +32,8 @@ pub const GTK = struct {
     thePA: *pa.PA = undefined,
     DevPair: [2]i32 = .{ -1, -1 },
     DrawingDataRaw: [1024]f32 = .{0} ** 1024,
-    DrawingDataMod: [1024]f32 = .{0} ** 1024,
+    DrawingDataMod: [1024]f32 = .{0.02} ** 1024,
+    miEvent: std.Thread.ResetEvent = std.Thread.ResetEvent{},
 
     pub fn Init(paptr: *pa.PA) *GTK {
         c.gtk_init(0, null);
@@ -130,12 +131,20 @@ pub const GTK = struct {
         c.g_print("bThreadRunning: %d\n", self.bThreadRunning);
 
         while (!self.bEvKillThread) {
-            c.g_usleep(50_000);
+            //c.g_usleep(70_000);
+            //self.miEvent.timedWait(30_000_000) catch continue;
+            self.miEvent.timedWait(10_000_000) catch continue;
+            self.miEvent.reset();
             if (self.thePA.GetInputdata(&self.DrawingDataRaw, &self.DrawingDataMod)) {
                 c.gtk_widget_queue_draw(@ptrCast(self.drawFFT));
                 c.gtk_widget_queue_draw(@ptrCast(self.drawFall));
-            }
+            } else self.miEvent.set();
         }
+
+        self.DrawingDataRaw = .{0.0} ** 1024;
+        self.DrawingDataMod = .{0.02} ** 1024;
+        c.gtk_widget_queue_draw(@ptrCast(self.drawFFT));
+        c.gtk_widget_queue_draw(@ptrCast(self.drawFall));
 
         c.g_print("bEvKillThread: %d\n", self.bEvKillThread);
         self.bThreadRunning = false;
@@ -170,10 +179,15 @@ pub const GTK = struct {
             self.bEvKillThread = false;
             self.thePA.Start();
             self.theThread = c.g_thread_new("updating", @as(c.GThreadFunc, @ptrCast(&UpdatingThread)), self);
+            self.miEvent.set();
+            c.gtk_widget_set_sensitive(@ptrCast(self.butPlay), 0);
+            c.gtk_widget_set_sensitive(@ptrCast(self.cbtIn), 0);
+            c.gtk_widget_set_sensitive(@ptrCast(self.cbtOut), 0);
         }
-        c.gtk_widget_set_sensitive(@ptrCast(self.butPlay), 0);
-        c.gtk_widget_set_sensitive(@ptrCast(self.cbtIn), 0);
-        c.gtk_widget_set_sensitive(@ptrCast(self.cbtOut), 0);
+        // ??
+        //        c.gtk_widget_set_sensitive(@ptrCast(self.butPlay), 0);
+        //        c.gtk_widget_set_sensitive(@ptrCast(self.cbtIn), 0);
+        //        c.gtk_widget_set_sensitive(@ptrCast(self.cbtOut), 0);
     }
 
     fn butCbStop(_: [*]c.GtkButton, ptrSelf: c.gpointer) void {
@@ -183,6 +197,7 @@ pub const GTK = struct {
             self.bEvKillThread = true;
             _ = c.g_thread_join(self.theThread);
             self.thePA.Stop();
+            self.miEvent.reset();
             c.gtk_widget_set_sensitive(@ptrCast(self.cbtIn), 1);
             c.gtk_widget_set_sensitive(@ptrCast(self.cbtOut), 1);
         }
@@ -200,7 +215,7 @@ pub const GTK = struct {
         c.gtk_render_background(context, cr, 0, 0, width, height);
 
         const self: *GTK = @ptrCast(@alignCast(ptrSelf));
-        if (!self.bThreadRunning) return c.FALSE;
+        //        if (!self.bThreadRunning) return c.FALSE;
 
         c.cairo_scale(cr, width, height);
         c.cairo_set_source_rgba(cr, 0.4, 0.8, 0, 0.8);
@@ -235,6 +250,8 @@ pub const GTK = struct {
         c.cairo_line_to(cr, K * (0.15 + self.DrawingDataRaw[0]), 0.0);
         c.cairo_stroke(cr);
 
+        self.miEvent.set();
+
         return c.FALSE;
     }
 
@@ -246,7 +263,7 @@ pub const GTK = struct {
         c.gtk_render_background(context, cr, 0, 0, width, height);
 
         const self: *GTK = @ptrCast(@alignCast(ptrSelf));
-        if (!self.bThreadRunning) return c.FALSE;
+        //        if (!self.bThreadRunning) return c.FALSE;
 
         c.cairo_scale(cr, width, height);
 

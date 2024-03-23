@@ -11,38 +11,17 @@ const c = @cImport({
 pub const DIList = std.MultiArrayList(c.PaDeviceInfo);
 const SyncObj = struct {
     theMutex: std.Thread.Mutex = std.Thread.Mutex{},
-    theEvent: std.Thread.ResetEvent = std.Thread.ResetEvent{},
 
-    fn BlockProd(self: *SyncObj) bool {
-        //        if (!self.theEvent.isSet())
-        return self.theMutex.tryLock();
-        //        else
-        //            return false;
-    }
-
-    fn UnblockProd(self: *SyncObj) void {
-        self.theMutex.unlock();
-        //       self.theEvent.set();
-    }
-
-    fn BlockCons(self: *SyncObj) bool {
-        //        self.theEvent.timedWait(30_000_000) catch return false; // nanoseconds
-        //        self.theMutex.lock();
-        //        return true;
+    fn Block(self: *SyncObj) bool {
         return self.theMutex.tryLock();
     }
 
-    fn UnblockCons(self: *SyncObj) void {
+    fn Unblock(self: *SyncObj) void {
         self.theMutex.unlock();
-        //        self.theEvent.reset();
     }
 
     fn Reset(self: *SyncObj) void {
-        if (self.theEvent.isSet())
-            self.theEvent.reset();
-
-        if (self.theMutex.tryLock())
-            self.theMutex.unlock();
+        if (self.theMutex.tryLock()) self.theMutex.unlock();
     }
 };
 
@@ -148,24 +127,23 @@ pub const PA = struct {
         //const arg=imag/real;
 
         var self: *PA = @ptrCast(@alignCast(ptr));
-        if (self.theSync.BlockProd()) {
+        if (self.theSync.Block()) {
             @memcpy(&self.RawAudio, &ptrIn.*);
             @memcpy(&self.ModAudio, &out);
-            self.theSync.UnblockProd();
+            self.theSync.Unblock();
         }
 
         return 0;
     }
 
     pub fn GetInputdata(self: *PA, dataRaw: *[SAMPLES]f32, dataMod: *[SAMPLES]f32) bool {
-        if (self.theSync.BlockCons()) {
+        if (self.theSync.Block()) {
             @memcpy(dataRaw, &self.RawAudio);
             @memcpy(dataMod, &self.ModAudio);
-            self.theSync.UnblockCons();
+            self.theSync.Unblock();
             return true;
         }
 
-        self.theSync.Reset();
         return false;
     }
 };
