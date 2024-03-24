@@ -92,7 +92,7 @@ pub const PA = struct {
     }
 
     pub fn Start(self: *PA) void {
-        self.theSync.Reset();
+        //self.theSync.Reset();
         _ = c.Pa_OpenStream(@alignCast(&self.miStream), &self.inSP, &self.outSP, FRAMERATE, SAMPLES, c.paNoFlag, &c_FuzzCallback, self);
         _ = c.Pa_StartStream(self.miStream);
     }
@@ -100,7 +100,7 @@ pub const PA = struct {
     pub fn Stop(self: *PA) void {
         _ = c.Pa_StopStream(self.miStream);
         _ = c.Pa_CloseStream(self.miStream);
-        self.theSync.Reset();
+        //self.theSync.Reset();
     }
 
     fn c_FuzzCallback(inputBuffer: ?*const anyopaque, outputBuffer: ?*anyopaque, _: c_ulong, _: [*c]const c.PaStreamCallbackTimeInfo, _: c.PaStreamCallbackFlags, ptr: ?*anyopaque) callconv(.C) c_int {
