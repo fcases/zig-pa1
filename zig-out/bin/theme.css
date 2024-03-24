@@ -1,0 +1,133 @@
+button#Play:hover ,button#Stop:hover  {
+  color: red;
+  background-color: black;
+  opacity: 0.97;
+  background-image:  -gtk-gradient (linear,
+             left top,
+             left bottom,
+             color-stop(0.000,rgba(104,191,134,1)),
+             color-stop(0.11,rgba(34,131,116,1)),
+             color-stop(0.32,rgba(34,97,70,1)),
+             color-stop(0.70,rgba(56,145,118,1)),
+             color-stop(0.91,rgba(34,131,116,1)),
+             color-stop(1.00,rgba(104,191,134,1)));
+}
+
+button#Quit:hover {
+  color: yellowgreen;
+  background-color: black;
+  opacity: 0.97;
+  text-decoration: underline;
+  background-image:  -gtk-gradient (linear,
+             left top,
+             left bottom,
+             color-stop(0.000,rgba(104,191,134,1)),
+             color-stop(0.11,rgba(34,131,116,1)),
+             color-stop(0.32,rgba(34,97,70,1)),
+             color-stop(0.70,rgba(56,145,118,1)),
+             color-stop(0.91,rgba(34,131,116,1)),
+             color-stop(1.00,rgba(104,191,134,1)));              
+}
+
+/*
+combobox, notebook    {
+  color: orange;
+  background-color: yellow;
+  opacity: 0.95;
+  text-decoration: underline;
+  background-image:  -gtk-gradient (linear,
+             left top,
+             left bottom,
+             color-stop(0.0,rgba(34,97,70,1)),
+             color-stop(0.30,rgba(56,145,118,0.9)),
+             color-stop(0.81,rgba(34,131,116,0.9)),
+             color-stop(1.00,rgba(104,191,134,1)));
+}
+*/
+
+/*
+box#box2 {
+  background-color: yellow; 
+  background-image: url("next.png");
+}
+*/
+
+/*window.popup para el texto desplegado, solo color y background-color*/ 
+/*button.combo  para el boton una vez relleno, color y background-image*/
+/*box.linked el marco exterior del combo background-color*/  
+/*combobox
+button.combo  {
+   background-image:  -gtk-gradient (linear,
+             left top,
+             left bottom,
+             color-stop(0.0,rgba(34,97,70,1)),
+             color-stop(0.30,rgba(56,145,118,0.9)),
+             color-stop(0.81,rgba(34,131,116,0.9)),
+             color-stop(1.00,rgba(104,191,134,1)));
+
+}
+
+*/
+
+button.combo  {
+   color: yellow;
+/*   background-image:  url("Scr.png"); */
+/*
+   background-image:  -gtk-gradient (linear,
+             left top,
+             right bottom,
+             color-stop(0.0,rgba(34,97,70,1)),
+             color-stop(0.30,rgba(56,145,118,0.9)),
+             color-stop(0.81,rgba(34,131,116,0.9)),
+             color-stop(1.00,rgba(104,191,134,1)));
+*/             
+  background-image:  -gtk-gradient (linear,
+             left top,
+             right bottom,
+             color-stop(0.000,rgba(104,191,134,1)),
+             color-stop(0.11,rgba(34,131,116,1)),
+             color-stop(0.32,rgba(34,97,70,1)),
+             color-stop(0.70,rgba(56,145,118,1)),
+             color-stop(0.91,rgba(34,131,116,1)),
+             color-stop(1.00,rgba(104,191,134,1)));  
+}
+
+button.combo:disabled {
+   color: white;
+   background-image:  -gtk-gradient (linear,
+             left top,
+/*             left bottom,*/
+            right bottom,
+             color-stop(0.0,rgba(34,34,34,1)),
+             color-stop(0.30,rgba(56,56,66,0.9)),
+             color-stop(0.81,rgba(90,90,110,0.9)),
+             color-stop(1.00,rgba(10,10,80,1)));
+}
+
+
+.cbt#In window.popup {
+   color: orange;
+}
+
+.cbt#Out window.popup {
+   color: red;
+}
+
+
+.lienzo#fall {
+  background-image: url("./pix/BlackDots2.png"); 
+/*  background-image:  url("./pix/Scr1.png"); 
+*/
+  background-size: 100% 100%;
+}
+
+.lienzo#fft {
+  background-image: url("./pix/BlackDots3.png"); 
+/*  background-size: contain;
+  background-size: cover; */
+  background-size: 100% 100%;
+
+/*   background-image: -gtk-scaled( url("BlackDots1.png") ); */
+}
+
+
