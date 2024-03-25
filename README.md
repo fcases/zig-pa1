@@ -13,6 +13,8 @@ Just choose an input device in first combobox, output in second combobox. If bot
   <img src="pix/app.png?raw=true" alt="window app"/>
 </p>
 
-
+<p align="center">
 The first graph shows the FFT of the signal, the second draws the raw signal.
+</p>
+
 
