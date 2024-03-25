@@ -1,7 +1,7 @@
 # zig-pa1
-An exercise with ZIG and the C libraries: gtk and portaudio.
+An exercise with ZIG and the gtk and portaudio C libraries.
 
-Just choose an input device in first dropmenu, output in second dropmenu. If both are compatible, the green led will turn on. After that point you can push the play ... and wisthle.
+Just choose an input device in first combobox, output in second combobox. If both devices are compatible, the green led will turn on. Next step, you can push the play ... and wistle.
 
 
 <center>
@@ -9,5 +9,5 @@ Just choose an input device in first dropmenu, output in second dropmenu. If bot
 </center>
 
 
-The first graph shows the FFT of the signal, drawn in the second.
+The first graph shows the FFT of the signal, the second draws the raw signal.
 
