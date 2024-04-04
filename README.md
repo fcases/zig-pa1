@@ -17,4 +17,12 @@ Just choose an input device in first combobox, output in second combobox. If bot
 The first graph shows the FFT of the signal, the second draws the raw signal.
 </p>
 
+<p align="center">
+  <img src="pix/LosZigarros.png?raw=true" alt="window app"/>
+</p>
+
+<p align="center">
+Listening Los Zigarros.
+</p>
+
 
