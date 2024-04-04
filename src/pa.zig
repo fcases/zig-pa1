@@ -121,7 +121,7 @@ pub const PA = struct {
         const real: @Vector(SAMPLES, f32) = in;
         const imag: @Vector(SAMPLES, f32) = zeros;
 
-        const K2: @Vector(SAMPLES, f32) = @splat(0.05);
+        const K2: @Vector(SAMPLES, f32) = @splat(0.25);
         const mod = @sqrt(real * real + imag * imag) * K2;
         out = mod;
         //const arg=imag/real;

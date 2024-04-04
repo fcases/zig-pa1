@@ -1,5 +1,4 @@
 const std = @import("std");
-//const stdout = @import("std").io.getStdOut().writer();
 const pa = @import("pa.zig");
 const c = @cImport({
     @cInclude("gtk/gtk.h");
@@ -11,7 +10,9 @@ var TheGTK = GTK{};
 
 pub const GTK = struct {
     err: [*c][*c]c.GError = null,
-    pat: ?*c.cairo_pattern_t = null,
+    patF: ?*c.cairo_pattern_t = null,
+    patD: ?*c.cairo_pattern_t = null,
+    patL: ?*c.cairo_pattern_t = null,
     window: [*c]c.GObject = null,
     butQuit: [*c]c.GObject = null,
     drawFFT: [*c]c.GObject = null,
@@ -38,20 +39,15 @@ pub const GTK = struct {
     pub fn Init(paptr: *pa.PA) *GTK {
         c.gtk_init(0, null);
 
-        const builderDecl = @embedFile("./pa1.glade");
-        const bdp: [*c]const u8 = builderDecl;
-        const builder: *c.GtkBuilder = c.gtk_builder_new();
+        // const builderDecl = @embedFile("./pa1.glade");
+        // const bdp: [*c]const u8 = builderDecl;
+        const builder: *c.GtkBuilder = c.gtk_builder_new_from_file("./src/pa1.glade");
         const err: [*c][*c]c.GError = null;
-        if (c.gtk_builder_add_from_string(builder, bdp, builderDecl.len, err) == 0) {
-            c.g_printerr("Error loading embedded builder: %s\n", err.*.*.message);
-            TheGTK.err = err;
-            return &TheGTK;
-        }
-
-        const pat = c.cairo_pattern_create_linear(0.0, 0.0, 0.0, 1.0);
-        c.cairo_pattern_add_color_stop_rgb(pat, 0.2, 1, 0, 0);
-        c.cairo_pattern_add_color_stop_rgb(pat, 0.35, 1, 1, 0);
-        c.cairo_pattern_add_color_stop_rgb(pat, 0.65, 0, 1, 0);
+        // if (c.gtk_builder_add_from_string(builder, bdp, builderDecl.len, err) == 0) {
+        //     c.g_printerr("Error loading embedded builder: %s\n", err.*.*.message);
+        //     TheGTK.err = err;
+        //     return &TheGTK;
+        // }
 
         const window = c.gtk_builder_get_object(builder, "miWindow");
         const butQuit = c.gtk_builder_get_object(builder, "miQuit");
@@ -65,7 +61,7 @@ pub const GTK = struct {
         const drawLOff = c.gtk_builder_get_object(builder, "miLedOff");
 
         TheGTK.err = err;
-        TheGTK.pat = pat;
+        // TheGTK.patF = patF;
         TheGTK.window = window;
         TheGTK.butQuit = butQuit;
         TheGTK.drawFall = drawFall;
@@ -84,6 +80,23 @@ pub const GTK = struct {
     pub fn RunMain(self: *GTK) void {
         const negro: c.GdkColor = c.GdkColor{ .pixel = 0, .red = 0x0000, .green = 0x0000, .blue = 0x0000 };
         c.gtk_widget_modify_bg(@as(*c.GtkWidget, @ptrCast(self.window)), c.GTK_STATE_NORMAL, &negro);
+
+        self.patF = c.cairo_pattern_create_linear(0.0, 0.0, 0.0, 1.0);
+        c.cairo_pattern_add_color_stop_rgb(self.patF, 0.2, 1, 0, 0);
+        c.cairo_pattern_add_color_stop_rgb(self.patF, 0.35, 1, 1, 0);
+        c.cairo_pattern_add_color_stop_rgb(self.patF, 0.65, 0, 1, 0);
+
+        self.patL = c.cairo_pattern_create_linear(0.0, 0.0, 1.0, 1.0);
+        c.cairo_pattern_add_color_stop_rgb(self.patL, 0.15, 0.80, 0.80, 0.80);
+        c.cairo_pattern_add_color_stop_rgb(self.patL, 0.35, 0.65, 0.65, 0.65);
+        c.cairo_pattern_add_color_stop_rgb(self.patL, 0.55, 0.25, 0.25, 0.25);
+
+        self.patD = c.cairo_pattern_create_radial(0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+        c.cairo_pattern_add_color_stop_rgb(self.patD, 0.10, 1, 0, 0);
+        c.cairo_pattern_add_color_stop_rgb(self.patD, 0.17, 1, 1, 0);
+        c.cairo_pattern_add_color_stop_rgb(self.patD, 0.25, 0, 1, 0);
+        c.cairo_pattern_add_color_stop_rgb(self.patD, 0.32, 1, 1, 0);
+        c.cairo_pattern_add_color_stop_rgb(self.patD, 0.40, 1, 0, 0);
 
         const theListDev = self.thePA.GetDevices();
         for (0..theListDev.len) |n| {
@@ -218,7 +231,7 @@ pub const GTK = struct {
         //        if (!self.bThreadRunning) return c.FALSE;
 
         c.cairo_scale(cr, width, height);
-        c.cairo_set_source_rgba(cr, 0.4, 0.8, 0, 0.8);
+        // c.cairo_set_source_rgba(cr, 0.4, 0.8, 0, 0.8);
         c.cairo_set_line_width(cr, 0.005);
 
         var i: f64 = 0;
@@ -233,6 +246,7 @@ pub const GTK = struct {
         var y: f64 = 0;
 
         c.cairo_translate(cr, 0.5, 0.5);
+        c.cairo_set_source(cr, self.patD);
         c.cairo_move_to(cr, K * (x + self.DrawingDataRaw[0]), 0.0);
 
         var pos: usize = 0.0;
@@ -267,7 +281,7 @@ pub const GTK = struct {
 
         c.cairo_scale(cr, width, height);
 
-        c.cairo_set_source(cr, self.pat);
+        c.cairo_set_source(cr, self.patF);
 
         var i: f64 = 0;
         const DIVISIONES: f64 = 64; // si quiero visualizar hasta 22Khz => max 512 divs, si quiero hasta 11KHz => max 256 divs, y asi
@@ -294,7 +308,8 @@ pub const GTK = struct {
     fn DrawLOn(widget: [*c]c.GtkWidget, cr: *c.cairo_t, ptrSelf: c.gpointer) c.gboolean {
         const self: *GTK = @ptrCast(@alignCast(ptrSelf));
 
-        DrawLed(widget, cr, false, self.bLedOnState);
+        DrawLed(self, widget, cr, false, self.bLedOnState);
+        // DrawLed(widget, cr, false, self.bLedOnState);
 
         return c.FALSE;
     }
@@ -302,20 +317,22 @@ pub const GTK = struct {
     fn DrawLOff(widget: [*c]c.GtkWidget, cr: *c.cairo_t, ptrSelf: c.gpointer) c.gboolean {
         const self: *GTK = @ptrCast(@alignCast(ptrSelf));
 
-        DrawLed(widget, cr, true, self.bLedOffState);
+        DrawLed(self, widget, cr, true, self.bLedOffState);
+        // DrawLed(widget, cr, true, self.bLedOffState);
+
         return c.FALSE;
     }
 
-    fn DrawLed(widget: [*c]c.GtkWidget, cr: *c.cairo_t, red: bool, on: bool) void {
+    fn DrawLed(self: *GTK, widget: [*c]c.GtkWidget, cr: *c.cairo_t, red: bool, on: bool) void {
         const width: f64 = @floatFromInt(c.gtk_widget_get_allocated_width(widget));
         const height: f64 = @floatFromInt(c.gtk_widget_get_allocated_height(widget));
 
         c.cairo_scale(cr, width, height);
 
-        //c.cairo_set_line_width(cr, 0.08);
-        c.cairo_set_source_rgb(cr, 0.3, 0.3, 0.3);
+        c.cairo_set_line_width(cr, 0.08);
+        c.cairo_set_source(cr, self.patL);
+        // c.cairo_set_source_rgb(cr, 0.3, 0.3, 0.3);
         c.cairo_arc(cr, 0.50, 0.50, 0.50, 0, 2 * c.G_PI);
-        //c.cairo_stroke_preserve(cr);
         c.cairo_fill(cr);
 
         const intens: f64 = if (on) 1.0 else 0.25;
